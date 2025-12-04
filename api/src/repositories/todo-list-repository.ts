@@ -5,4 +5,5 @@ export interface TodoListRepository {
     edit(id:TodoList): Promise<TodoList | null>
     delete(userId:string,date:Date):Promise<void>
     list():Promise<TodoList[]>
+    completedTask(id:string,completed:boolean):Promise<void>
 }

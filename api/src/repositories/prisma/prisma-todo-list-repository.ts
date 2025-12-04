@@ -37,4 +37,16 @@ export class PrismaTodoListRepository implements TodoListRepository{
       return todosList;
     }
 
+    async completedTask(idTodoList:string,completed:boolean){
+        console.log(idTodoList,completed,"oiiiiiiii")
+        const todoListUpdated = await prisma.todoList.update({
+            where:{
+                id:idTodoList
+            },
+            data:{
+                checked:completed
+            }
+        })
+    }
+
 }

@@ -1,24 +1,18 @@
-import { prisma } from "@/lib/prisma";
+import { makeGetAllListUseCase } from "@/use-cases/factories/make-get-all-list-use-case";
 import { FastifyReply,FastifyRequest } from "fastify";;
-import { z } from "zod";
 
-import { makeValidatedCheckInUseCase } from "@/use-cases/factories/make-validated-check-use-case";
 
 export async function get (request:FastifyRequest,reply:FastifyReply) {
 
-    const validateCheckInParamsSchema = z.object({
-        checkInId:z.string().uuid()
-    })
-
-    const {checkInId} = validateCheckInParamsSchema.parse(request.params)
-
     try {
-        const validateCheckInUseCase = makeValidatedCheckInUseCase();
-        await validateCheckInUseCase.execute({checkInId});
+        const getAllListUseCase = makeGetAllListUseCase();
+        const list = await getAllListUseCase.execute();
+        reply.status(200).send(list);
     } catch (e) {
         throw e;
        
     }
 
-    return reply.status(204).send();
+    return reply.status(201).send();
+
 }

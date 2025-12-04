@@ -9,6 +9,7 @@ datasource db {
 
 model TodoList {
   id            String    @id @default(uuid())
-  task          String
+  title         String
   created_at    DateTime  @default(now())
+  checked       Boolean   @default(false)
 }
