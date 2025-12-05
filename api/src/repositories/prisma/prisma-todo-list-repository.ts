@@ -12,13 +12,18 @@ export class PrismaTodoListRepository implements TodoListRepository{
     }
 
 
-    async edit(data: TodoList) {
+    async edit(id:string,title:string) {
+
+        console.log(id,"iddd");
+        console.log(title,"titleee")
 
         const todoListUpdated = await prisma.todoList.update({
             where:{
-                id:data.id
+                id
             },
-            data
+            data:{
+                title
+            }
         })
 
         return todoListUpdated;
@@ -38,7 +43,6 @@ export class PrismaTodoListRepository implements TodoListRepository{
     }
 
     async completedTask(idTodoList:string,completed:boolean){
-        console.log(idTodoList,completed,"oiiiiiiii")
         const todoListUpdated = await prisma.todoList.update({
             where:{
                 id:idTodoList
@@ -47,6 +51,16 @@ export class PrismaTodoListRepository implements TodoListRepository{
                 checked:completed
             }
         })
+    }
+
+    async findTaskById(id: string): Promise<TodoList | null> {
+        const task = await prisma.todoList.findUnique({
+            where:{
+                id
+            }
+        })
+
+        return task
     }
 
 }

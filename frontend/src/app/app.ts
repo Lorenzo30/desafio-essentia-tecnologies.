@@ -1,12 +1,13 @@
 import { Component, signal, OnInit, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // ★ IMPORTANTE
+import { FormsModule } from '@angular/forms';
+import { environment } from '../environments/environment';
 
 
 interface Todo {
   id: string;
   title: string;
-  checked: boolean;
+  checked?: boolean;
   created_at?:string
 }
 
@@ -354,7 +355,7 @@ export class App implements OnInit {
   completedCount = computed(() => this.todos().filter(t => t.checked).length);
   pendingCount = computed(() => this.todos().length - this.completedCount());
 
-  private API_URL = 'http://localhost:3333/todo-list';
+  private API_URL = environment.API_URL;
 
   ngOnInit(): void {
     this.fetchTodos();
@@ -403,26 +404,26 @@ export class App implements OnInit {
   async addTodo(): Promise<void> {
     const title = this.newTodoTitle().trim();
     if (!title) return;
-
     this.loading.set(true);
     this.newTodoTitle.set(''); 
 
 
     const newTodo: Todo = {
-      id:"",
       title: title,
-      checked: false,
+      id:""
     };
 
     try {
       
-      await this.safeFetch(this.API_URL, {
+      const response = await this.safeFetch(this.API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newTodo),
-      });
+      })
 
-      this.todos.update(currentTodos => [...currentTodos, newTodo]);
+      const reponse = await response.json();
+      const task : Todo = reponse.todoList;
+      this.todos.update(currentTodos => [...currentTodos, task]);
     } catch (e) {
       this.error.set(e instanceof Error ? e.message : 'Erro ao adicionar tarefa.');
     } finally {
@@ -433,15 +434,17 @@ export class App implements OnInit {
 
   async toggleCompletion(todo: Todo): Promise<void> {
     this.loading.set(true);
-    const updatedTodo = { ...todo, completed: !todo.checked };
-
+  
+    const updatedTodo = { ...todo, checked: !todo.checked };
+  
     try {
       await this.safeFetch(`${this.API_URL}/${todo.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ completed: updatedTodo.completed }),
+        body: JSON.stringify({ completed: updatedTodo.checked }),
       });
-
+  
+     
       this.todos.update(currentTodos =>
         currentTodos.map(t => (t.id === todo.id ? updatedTodo : t))
       );
@@ -451,7 +454,7 @@ export class App implements OnInit {
       this.loading.set(false);
     }
   }
-
+  
 
   startEdit(todo: Todo): void {
     if (todo.checked) return;
